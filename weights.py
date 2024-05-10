@@ -1,6 +1,8 @@
 from segment_anything import sam_model_registry, SamPredictor
 import matplotlib.pyplot as plt
 import numpy as np
+import scipy.ndimage
+
 sam_checkpoint = "sam_vit_b_01ec64.pth"
 model_type = "vit_b"
 device = "cpu"
@@ -42,9 +44,15 @@ def plot(image, masks, scores, input_point, input_label):
         plt.figure(figsize=(10, 10))
         plt.imshow(image)
         show_mask(mask, plt.gca())
+        print(mask)
         show_points(input_point, input_label, plt.gca())
         plt.title(f"Mask {i + 1}, Score: {score:.3f}", fontsize=18)
         plt.axis('off')
         plt.savefig('result.png')
+        return mask
+
+def square(image):
+    scipy.ndimage.label(input, structure=None, output=None)
+
 
 
