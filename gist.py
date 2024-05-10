@@ -14,31 +14,33 @@ from streamlit_javascript import st_javascript
 #predictor = weights.predictor
 
 
-st.title('Gist image segmentation')
+st.sidebar.image('Biocad_Logo.svg',  width=100)
+st.title('Hist image segmentation')
 st.write('Upload image, draw on it, and get the segmentation image')
 
 # Specify canvas parameters in application
 
 bg_image = st.sidebar.file_uploader("Background image:", type=["png", "jpg", "jpeg"])
 drawing_mode = st.sidebar.selectbox(
-    "Drawing tool:", ("point", "freedraw", "line", "rect", "circle", "transform")
+    "Drawing tool:", ("point", "freedraw")
 )
+
+
 stroke_width = st.sidebar.slider("Stroke width: ", 1, 25, 3)
 if drawing_mode == 'point':
     point_display_radius = st.sidebar.slider("Point display radius: ", 1, 25, 3)
-stroke_color = st.sidebar.color_picker("desired selection: ", "#8AE485", "#E67272" )
-bg_color = st.sidebar.color_picker("NOT desired selection: ", "#E67272")
+
+
+#stroke_color = st.sidebar.color_picker("desired selection: ", "#8AE485")
+#bg_color = st.sidebar.color_picker("NOT desired selection: ", "#E67272")
 
 realtime_update = st.sidebar.checkbox("Update in realtime", True)
-
 
 if bg_image is not None:
     image = Image.open(bg_image)
     h = image.height
     w = image.width
     image_RGB = np.array(image.convert('RGB'))
-
-
 
 # Create a canvas component
 if bg_image is not None:
@@ -49,19 +51,38 @@ if bg_image is not None:
     canvas_width = inner_width
     canvas_height = h * (canvas_width / w)
 
+select_event = st.sidebar.selectbox('Какую точку поставить?',
+                                        ['green', 'red'])
+if select_event == 'red':
     canvas_result = st_canvas(
-        fill_color="rgba(255, 165, 0, 0.3)",  # Fixed fill color with some opacity
-        stroke_width=stroke_width,
-        stroke_color=stroke_color,
-        background_color=bg_color,
-        background_image=Image.open(bg_image) if bg_image else None,
-        update_streamlit=realtime_update,
-        height=canvas_height,
-        width=canvas_width,
-        drawing_mode=drawing_mode,
-        point_display_radius=point_display_radius if drawing_mode == 'point' else 0,
-        key="canvas",
-    )
+            fill_color="rgba(255, 165, 0, 0.3)",  # Fixed fill color with some opacity
+            stroke_width=stroke_width,
+            stroke_color="#E67272",
+            background_image=Image.open(bg_image) if bg_image else None,
+            update_streamlit=realtime_update,
+            height=canvas_height,
+            width=canvas_width,
+            drawing_mode=drawing_mode,
+            point_display_radius=point_display_radius if drawing_mode == 'point' else 0,
+            key="canvas",
+        )
+    st.sidebar.color_picker("desired selection: ", "#E67272")
+
+else:
+    canvas_result = st_canvas(
+            fill_color="rgba(255, 165, 0, 0.3)",  # Fixed fill color with some opacity
+            stroke_width=stroke_width,
+            stroke_color="#8AE485",
+            background_image=Image.open(bg_image) if bg_image else None,
+            update_streamlit=realtime_update,
+            height=canvas_height,
+            width=canvas_width,
+            drawing_mode=drawing_mode,
+            point_display_radius=point_display_radius if drawing_mode == 'point' else 0,
+            key="canvas",
+            )
+    st.sidebar.color_picker("desired selection: ", "#8AE485")
+
 
     # Do something interesting with the image data and paths
     if canvas_result.image_data is not None:
