@@ -102,21 +102,38 @@ else:
         objects = objects[objects.type == 'circle']
         cords = pd.DataFrame({'x': objects['left'].apply(lambda x: int(x * w / inner_width)).astype("str"),
                               'y': objects['top'].apply(lambda x: int(x * w / inner_width)).astype("str")})
+
         st.dataframe(objects)
         unique_colors = objects['stroke'].unique()
         #objects['labels'] = objects['stroke'].apply(lambda a:  )
         objects['stroke'].replace('#8AE485', 1, inplace=True)
-        objects['stroke'].replace('#e67272', 0, inplace=True)
+        objects['stroke'].replace('#E67272', 0, inplace=True)
         st.dataframe(objects)
+
 
         points = cords.to_numpy()
         labels = objects['stroke'].to_numpy()
         predict(image_RGB, points, labels)
         masks, scores, logits = predict(image_RGB, points, labels)
-        plot(image_RGB, masks, scores, points, labels)
-
+        maska = plot(image_RGB, masks, scores, points, labels)
         segm_im = np.array(Image.open('result.png'))
         st.image(segm_im)
+
+        maska = (maska != 0).astype(int)
+        im = Image.fromarray(np.uint8(maska * 255))
+
+        # Save image to a bytes buffer instead of a file
+        buf = io.BytesIO()
+        im.save(buf, format='PNG')
+        buf.seek(0)
+
+        # Use the buffered bytes data for the download button
+        st.image(im)
+        st.download_button(label="Download the mask",
+                           data=buf,
+                           file_name="mask.png",
+                           mime="image/png")
+
 
 
     if canvas_result.json_data is not None:
